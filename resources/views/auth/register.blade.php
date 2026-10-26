@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-6">
-        <h2 class="text-xl font-bold text-slate-900">Daftar Akun Baru 🚀</h2>
-        <p class="text-xs text-slate-500 mt-1">Buat akun untuk mulai mengelola dan memantau tugas proyek.</p>
+        <h2 class="text-xl font-bold text-slate-900">Daftar Akun Pengelola 🚀</h2>
+        <p class="text-xs text-slate-500 mt-1">Penyiapan awal: Buat akun pengelola untuk mulai mengelola dan memantau tugas di komputer kantor.</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
@@ -127,7 +127,7 @@
 
         <div class="pt-2">
             <button type="submit" class="w-full inline-flex justify-center items-center py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-200 transition-all duration-150 cursor-pointer">
-                <span>Daftar Sekarang</span>
+                <span>Daftar Akun Pengelola</span>
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -136,7 +136,7 @@
 
         <div class="pt-4 border-t border-slate-100 text-center">
             <p class="text-xs text-slate-500">
-                Sudah punya akun? 
+                Sudah ada akun pengelola? 
                 <a href="{{ route('login') }}" class="font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition">
                     Masuk di sini &rarr;
                 </a>

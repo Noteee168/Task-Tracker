@@ -18,8 +18,12 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (User::exists()) {
+            return redirect()->route('login')->with('status', 'Pendaftaran akun telah ditutup karena akun pengelola sudah terdaftar. Silakan masuk.');
+        }
+
         return view('auth.register');
     }
 
@@ -30,6 +34,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (User::exists()) {
+            return redirect()->route('login')->with('status', 'Pendaftaran akun telah ditutup karena akun pengelola sudah terdaftar. Silakan masuk.');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],

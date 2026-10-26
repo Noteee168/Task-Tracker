@@ -87,13 +87,15 @@
             </button>
         </div>
 
-        <div class="pt-4 border-t border-slate-100 text-center">
-            <p class="text-xs text-slate-500">
-                Belum punya akun? 
-                <a href="{{ route('register') }}" class="font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition">
-                    Daftar Akun Baru &rarr;
-                </a>
-            </p>
-        </div>
+        @if (\App\Models\User::count() === 0)
+            <div class="pt-4 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-500">
+                    Belum ada akun pengelola? 
+                    <a href="{{ route('register') }}" class="font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition">
+                        Daftar Akun Pengelola &rarr;
+                    </a>
+                </p>
+            </div>
+        @endif
     </form>
 </x-guest-layout>

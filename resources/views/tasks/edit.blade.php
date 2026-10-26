@@ -2,7 +2,7 @@
     {{-- 
         FUNGSI FILE INI:
         Ini adalah tampilan Form Edit Task (resources/views/tasks/edit.blade.php).
-        Menampilkan data tugas yang sedang diedit ($task), memungkinkan Superadmin mengubah status (belum, sedang, antrian, selesai),
+        Menampilkan data tugas yang sedang diedit ($task), memungkinkan Pengelola mengubah status (belum, sedang, antrian, selesai),
         mengubah prioritas, memperpanjang deadline, serta mengubah judul dan deskripsi.
         Menggunakan method spoofing @method('PUT') karena HTML form secara standar hanya mendukung GET/POST.
     --}}

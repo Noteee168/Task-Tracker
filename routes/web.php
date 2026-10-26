@@ -17,7 +17,7 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-// Route yang dilindungi middleware 'auth' (Hanya Superadmin yang sudah login)
+// Route yang dilindungi middleware 'auth' (Hanya Pengelola yang sudah login)
 Route::middleware(['auth'])->group(function () {
     // Dashboard Utama: Menampilkan ringkasan dan tabel tasks
     Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');

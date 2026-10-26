@@ -26,6 +26,19 @@ class Task extends Model
     protected $table = 'tasks';
 
     /**
+     * The "booted" method of the model.
+     * Mengaitkan task baru secara otomatis ke akun pengelola jika belum ditentukan.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Task $task) {
+            if (! $task->user_id) {
+                $task->user_id = auth()->id() ?? User::first()?->id;
+            }
+        });
+    }
+
+    /**
      * Kolom-kolom yang diizinkan untuk diisi secara massal (Mass Assignment Protection)
      * Ini digunakan saat memanggil Task::create($request->all()) atau $task->update(...)
      */

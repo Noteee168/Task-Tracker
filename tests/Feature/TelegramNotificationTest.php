@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     $this->user = User::first() ?? User::factory()->create([
-        'name' => 'Superadmin',
-        'email' => 'superadmin@example.com',
+        'name' => 'Pengelola',
+        'email' => 'pengelola@example.com',
     ]);
 });
 
@@ -82,6 +82,7 @@ test('telegram service sends notification via HTTP when configured', function ()
     Http::assertSent(function ($request) {
         return str_contains($request->url(), 'api.telegram.org/botfake-bot-token/sendMessage')
             && $request['chat_id'] === '123456789'
+            && str_contains($request['text'], 'Halo Pengelola')
             && str_contains($request['text'], 'Tugas Overdue Mendesak');
     });
 });

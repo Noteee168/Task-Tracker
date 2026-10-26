@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Service: TelegramNotificationService
  *
- * Layanan untuk mengirimkan notifikasi dan rekap tugas ke Telegram Bot Superadmin.
+ * Layanan untuk mengirimkan notifikasi dan rekap tugas ke Telegram Bot Pengelola.
  * Menggunakan Telegram Bot API sendMessage dengan format HTML.
  */
 class TelegramNotificationService
@@ -106,6 +106,7 @@ class TelegramNotificationService
         $today = today();
         $threeDaysLater = today()->addDays(3);
 
+        $user = $user ?? auth()->user() ?? User::first();
         $baseQuery = $user ? $user->tasks() : Task::query();
 
         // 1. Tugas Overdue (tenggat waktu sebelum hari ini & status != selesai)
@@ -186,7 +187,7 @@ class TelegramNotificationService
             return $html;
         }
 
-        $html .= "Halo Superadmin, terdapat <b>{$data['total']} tugas</b> yang memerlukan perhatian:\n\n";
+        $html .= "Halo Pengelola, terdapat <b>{$data['total']} tugas</b> yang memerlukan perhatian:\n\n";
 
         // 1. Kategori Overdue
         if ($data['overdue']->isNotEmpty()) {

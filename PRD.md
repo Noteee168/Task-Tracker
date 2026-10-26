@@ -5,14 +5,17 @@
 
 ## 1. Executive Summary & Visi Produk
 
-**Task Tracker** adalah aplikasi web manajemen tugas, kolaborasi alur kerja, dan pemantauan proyek berbasis Laravel yang dirancang untuk produktivitas modern. Aplikasi ini memfasilitasi pengorganisasian tugas terpadu dari berbagai klien, pelacakan deadline kritis, deteksi keterlambatan (*overdue*), manajemen subtask/checklist hierarkis, sistem peringatan terjadwal via Telegram Bot, serta visualisasi data komprehensif melalui Dasbor Tabel, Papan Kanban (*Drag & Drop*), Kalender Deadline, dan Dasbor Analitik interaktif.
+**Task Tracker** adalah aplikasi web untuk satu orang pengelola di satu komputer kantor. Aplikasi membantu mencatat tugas dari berbagai klien, melacak deadline dan keterlambatan (*overdue*), merinci pekerjaan dengan checklist, mengirim pengingat melalui Telegram, serta menampilkan tugas melalui Dashboard tabel/Kanban, Kalender, dan Analitik. Aplikasi ini bukan sistem kolaborasi atau pembagian tugas antaranggota tim.
 
-Aplikasi menerapkan **Isolasi Data Pengguna (Personal Workspace Isolation)** di mana setiap pengguna terautentikasi memiliki lingkungan tugas pribadinya secara independen, aman, dan tidak dapat diakses atau diubah oleh pengguna lain.
+### Ruang Lingkup Pengguna
+Aplikasi ditujukan untuk **satu pengelola** yang memakai satu akun pada komputer kantor. Tidak ada kebutuhan bisnis untuk akun staf, workspace terpisah, atau rekap lintas pengguna. Login dipertahankan untuk membatasi akses ke data kantor.
+
+**Penerapan pada implementasi:** pendaftaran akun baru dibatasi hanya saat penyiapan awal jika belum ada akun pengelola; pendaftaran ditutup otomatis setelah akun terdaftar. Notifikasi Telegram dan seluruh operasi tugas otomatis terpusat pada akun pengelola kantor tersebut.
 
 ### 1.1 Masalah yang Diselesaikan
 * **Missed Deadlines**: Tugas yang mendekati batas waktu atau terlambat sering luput jika dicatat manual; diselesaikan dengan sistem deteksi real-time, badge selisih hari, dan notifikasi harian Telegram Bot.
 * **Kurangnya Visibilitas Klien**: Kesulitan memetakan beban kerja per klien; diselesaikan dengan analitik distribusi klien dan rekapitulasi performa.
-* **Alur Kerja Kaku**: Pengguna membutuhkan fleksibilitas dalam melihat tugas; diselesaikan dengan multi-view: Tabel Ringkas, Papan Kanban interaktif dengan drag-and-drop, serta Kalender Bulanan.
+* **Alur Kerja Kaku**: Pengelola membutuhkan fleksibilitas dalam melihat tugas; diselesaikan dengan multi-view: Tabel Ringkas, Papan Kanban interaktif dengan drag-and-drop, serta Kalender Bulanan.
 * **Tugas Kompleks Tanpa Struktur**: Tugas besar sulit diukur progresnya; diselesaikan dengan modul Subtask / Checklist dengan perhitungan persentase penyelesaian otomatis.
 * **Risiko Kehilangan Data**: Penghapusan tugas yang tidak disengaja; dicegah melalui sistem Tong Sampah (*Soft Deletes*) dengan kemampuan pemulihan (*restore*) maupun pembersihan permanen (*force delete*).
 
@@ -22,14 +25,14 @@ Aplikasi menerapkan **Isolasi Data Pengguna (Personal Workspace Isolation)** di 
 
 | Komponen | Teknologi / Paket | Versi Terpasang | Deskripsi |
 |---|---|---|---|
-| **Framework Backend** | Laravel Framework | `^13.29.0` (Laravel 12) | PHP 8.3+, Arsitektur MVC, Eloquent ORM, Task Scheduler |
-| **Autentikasi** | Laravel Breeze | `^2.4.2` | Autentikasi sesi aman, proteksi CSRF, throttle, isolasi `user_id` |
+| **Framework Backend** | Laravel Framework | `^13.17` | PHP 8.3+, Arsitektur MVC, Eloquent ORM, Task Scheduler |
+| **Autentikasi** | Laravel Breeze | `^2.4.2` | Login untuk satu akun pengelola, proteksi CSRF, dan sesi aman |
 | **Database** | MySQL / MariaDB (Laragon Stack) | 8.0+ / 10.4+ | Skema relasional teroptimasi dengan index, foreign keys, & soft deletes |
 | **Frontend Layout** | Blade Templating + Tailwind CSS | Tailwind `^3.1.0` | Antarmuka responsif, modern, glassmorphism, dan dark-mode aware |
 | **Frontend Interactivity** | Alpine.js & Chart.js | Alpine `^3.4.2`, Chart.js (CDN) | Reaktivitas UI ringan, HTML5 Drag & Drop, rendering grafik canvas |
 | **Asset Bundler** | Vite + Laravel Vite Plugin | Vite `^8.0.0`, Plugin `^3.1` | Hot-Module Replacement (HMR) dan kompilasi CSS/JS cepat |
-| **Notifikasi Eksternal** | Telegram Bot API | Telegram Bot API (HTTP Client) | Notifikasi rekap harian tugas via bot chat instant messaging |
-| **Testing Suite** | Pest PHP + Pest Plugin Laravel | Pest `^4.7.8`, Plugin `^4.1.0` | 60 test otomatis (Feature & Unit) dengan 161 assertions |
+| **Notifikasi Eksternal** | Telegram Bot API | Telegram Bot API (HTTP Client) | Rekap harian tugas pengelola ke satu chat Telegram |
+| **Testing Suite** | Pest PHP + Pest Plugin Laravel | Pest `^4.7.8`, Plugin `^4.1.0` | 62 test otomatis (Feature & Unit) dengan 166 assertions |
 | **Timezone Standar** | PHP / Laravel Config | `Asia/Jakarta` (WIB) | Penyelarasan waktu server, database, dan cron scheduling |
 
 ---
@@ -83,7 +86,7 @@ CREATE TABLE `subtasks` (
 | Kolom | Tipe Data | Nullable | Default | Fungsi & Catatan Bisnis |
 |---|---|---|---|---|
 | `id` | Bigint (PK) | No | Auto | ID unik tugas |
-| `user_id` | Bigint (FK) | No | - | Referensi pemilik tugas (`users.id`) untuk isolasi multi-user workspace |
+| `user_id` | Bigint (FK) | No | - | Referensi akun pembuat/pengelola tugas. Kolom ini masih ada pada implementasi saat ini; penggunaan yang dituju hanya satu akun pengelola. |
 | `judul` | Varchar(255) | No | - | Judul atau nama tugas |
 | `deskripsi` | Text | Yes | NULL | Penjelasan mendalam mengenai ruang lingkup pengerjaan |
 | `nama_klien` | Varchar(255) | Yes | NULL | Nama instansi atau klien pemilik tugas/proyek |
@@ -111,7 +114,7 @@ CREATE TABLE `subtasks` (
 
 ### 4.1 Modul Dashboard Utama ([`dashboard.blade.php`](file:///c:/laragon/www/task-tracker/resources/views/dashboard.blade.php))
 * **Ringkasan Kartu Statistik (KPI Bar)**:
-  * Total Tugas Pengguna
+  * Total Tugas Pengelola
   * Belum Mulai (`belum_dikerjakan`)
   * Sedang Dikerjakan (`sedang_dikerjakan`)
   * Menunggu Antrian (`menunggu_antrian`)
@@ -119,7 +122,7 @@ CREATE TABLE `subtasks` (
   * Terlambat / Overdue (`tanggal_deadline < today` & `status != selesai`)
   * Tong Sampah (`onlyTrashed()->count()`)
 * **Header Action & Telegram Trigger**:
-  * Tombol **"Kirim ke Telegram"**: Memicu pengiriman rekap instan ke Telegram Bot Superadmin.
+  * Tombol **"Kirim ke Telegram"**: Memicu pengiriman rekap instan tugas pengelola ke satu chat Telegram yang dikonfigurasi.
   * Tombol shortcut **"Tong Sampah"** dengan badge counter tugas terhapus.
   * Tombol **"Tambah Task Baru"**.
 * **Banner Peringatan Overdue**: Notifikasi peringatan mencolok dengan animasi ping merah jika terdapat tugas aktif melewati batas deadline.
@@ -162,7 +165,7 @@ CREATE TABLE `subtasks` (
     * `subtasks_count`: Total subtask.
     * `completed_subtasks_count`: Jumlah subtask selesai.
     * `subtasks_progress_percentage`: Persentase progres penyelesaian (0 - 100%).
-* **Isolasi Keamanan**: Pengguna hanya dapat melihat, menambah, mengubah, atau menghapus subtask dari tugas miliknya sendiri (HTTP 403 jika melanggar).
+* **Akses**: Operasi checklist hanya tersedia setelah login. Pada implementasi saat ini, akses subtask mengikuti kepemilikan akun pada tugas induk.
 
 ### 4.4 Modul Tong Sampah & Pemulihan (Soft Deletes / Trash) ([`tasks/trash.blade.php`](file:///c:/laragon/www/task-tracker/resources/views/tasks/trash.blade.php))
 * **Penghapusan Aman**: Menghapus tugas di dashboard tidak langsung melenyapkan data dari database, melainkan mengisi `deleted_at` (*Soft Delete*).
@@ -170,8 +173,8 @@ CREATE TABLE `subtasks` (
   * Menampilkan daftar tugas terhapus beserta tanggal penghapusannya.
   * Aksi **Pulihkan (Restore)**: Mengembalikan tugas ke dashboard aktif (`PATCH /tasks/{id}/restore`).
   * Aksi **Hapus Permanen (Force Delete)**: Menghapus permanen baris dari MySQL (`DELETE /tasks/{id}/force-delete`).
-  * Aksi **Kosongkan Tong Sampah**: Membersihkan seluruh data terhapus milik pengguna sekaligus (`POST /tasks/trash/empty`).
-* **Isolasi Keamanan**: Pemulihan dan force delete divalidasi ketat terhadap kepemilikan `user_id`.
+  * Aksi **Kosongkan Tong Sampah**: Membersihkan seluruh tugas terhapus sekaligus (`POST /tasks/trash/empty`).
+* **Akses**: Pemulihan dan penghapusan permanen hanya dapat dilakukan setelah login. Implementasi saat ini juga memeriksa kepemilikan `user_id`.
 
 ### 4.5 Modul Notifikasi Telegram Bot ([`TelegramNotificationService.php`](file:///c:/laragon/www/task-tracker/app/Services/TelegramNotificationService.php))
 * **Layanan Notifikasi Terpadu**:
@@ -215,7 +218,7 @@ CREATE TABLE `subtasks` (
 | `GET` | `/tasks/trash` | `tasks.trash` | `TaskController@trash` | `auth` | Halaman Tong Sampah (*soft-deleted tasks*) |
 | `PATCH` | `/tasks/{id}/restore` | `tasks.restore` | `TaskController@restore` | `auth` | Memulihkan tugas dari tong sampah |
 | `DELETE` | `/tasks/{id}/force-delete` | `tasks.force-delete` | `TaskController@forceDelete` | `auth` | Menghapus permanen tugas dari database |
-| `POST` | `/tasks/trash/empty` | `tasks.empty-trash` | `TaskController@emptyTrash` | `auth` | Mengosongkan seluruh isi tong sampah pengguna |
+| `POST` | `/tasks/trash/empty` | `tasks.empty-trash` | `TaskController@emptyTrash` | `auth` | Mengosongkan seluruh isi tong sampah pengelola |
 | `GET` | `/tasks` | `tasks.index` | `TaskController@index` | `auth` | Alias redirect ke dashboard tugas |
 | `GET` | `/tasks/create` | `tasks.create` | `TaskController@create` | `auth` | Form tambah tugas baru |
 | `POST` | `/tasks` | `tasks.store` | `TaskController@store` | `auth` | Validasi & simpan tugas baru |
@@ -228,9 +231,9 @@ CREATE TABLE `subtasks` (
 | `POST` | `/tasks/{task}/subtasks` | `subtasks.store` | `SubtaskController@store` | `auth` | Tambah subtask baru ke tugas |
 | `PATCH` | `/subtasks/{subtask}/toggle` | `subtasks.toggle` | `SubtaskController@toggle` | `auth` | Toggle centang selesai/belum subtask |
 | `DELETE` | `/subtasks/{subtask}` | `subtasks.destroy` | `SubtaskController@destroy` | `auth` | Hapus subtask |
-| `GET` | `/profile` | `profile.edit` | `ProfileController@edit` | `auth` | Halaman pengaturan profil pengguna |
-| `PATCH` | `/profile` | `profile.update` | `ProfileController@update` | `auth` | Update profil pengguna |
-| `DELETE` | `/profile` | `profile.destroy` | `ProfileController@destroy` | `auth` | Hapus akun pengguna |
+| `GET` | `/profile` | `profile.edit` | `ProfileController@edit` | `auth` | Halaman pengaturan akun pengelola |
+| `PATCH` | `/profile` | `profile.update` | `ProfileController@update` | `auth` | Update profil akun pengelola |
+| `DELETE` | `/profile` | `profile.destroy` | `ProfileController@destroy` | `auth` | Hapus akun pengelola |
 
 ---
 
@@ -261,28 +264,30 @@ CREATE TABLE `subtasks` (
 
 ### 6.3 Model `User` ([`app/Models/User.php`](file:///c:/laragon/www/task-tracker/app/Models/User.php))
 * **Relasi**:
-  * `tasks(): HasMany`: Koleksi tugas yang dimiliki pengguna untuk menjamin pemisahan data antar pengguna (*multi-tenancy workspace*).
+  * `tasks(): HasMany`: Koleksi tugas yang terkait ke akun. Relasi `user_id` masih dipakai implementasi saat ini, meskipun produk ditujukan untuk satu pengelola.
 
 ---
 
 ## 7. Pengujian & Jaminan Kualitas (QA & Testing)
 
-Aplikasi memiliki **60 automated tests** (161 assertions) yang dibangun di atas framework **Pest PHP** dan seluruhnya lulus verifikasi:
+Aplikasi memiliki **62 automated tests** (166 assertions) yang dibangun di atas framework **Pest PHP** dan seluruhnya lulus verifikasi:
 
 ```bash
 php artisan test --compact
-# {"tool":"pest","result":"passed","tests":60,"passed":60,"assertions":161}
+# {"tool":"pest","result":"passed","tests":62,"passed":62,"assertions":166}
 ```
 
 ### 7.1 Cakupan Uji Fitur Utama
+Catatan: beberapa pengujian di bawah masih menguji perilaku multi-akun karena itulah implementasi kode saat ini. Daftar ini menjelaskan cakupan kode, bukan kebutuhan penggunaan satu pengelola. Jika autentikasi atau cakupan data diubah, perbarui pengujiannya.
+
 1. **[`TaskTrackerTest.php`](file:///c:/laragon/www/task-tracker/tests/Feature/TaskTrackerTest.php)**:
-   * *Isolasi Data Pengguna*: Memastikan pengguna hanya melihat tugas miliknya di dashboard dan tidak bisa melihat tugas milik orang lain.
-   * *Otorisasi CRUD*: Mencegah pengeditan, pengubahan, atau penghapusan tugas milik pengguna lain (HTTP 403 Forbidden).
+   * *Cakupan tugas per akun (implementasi saat ini)*: Memastikan akun hanya melihat tugas yang terhubung ke akunnya.
+   * *Otorisasi CRUD (implementasi saat ini)*: Mencegah akun lain mengedit atau menghapus tugas (HTTP 403 Forbidden).
    * *Kanban Board & Quick Status*: Verifikasi rendering elemen papan kanban, pembaruan status via API JSON, dan proteksi unsubmit tugas berstatus 'selesai'.
-   * *Kalender Deadline*: Verifikasi aksesibilitas kalender dan penyaringan tugas eksklusif per pengguna.
+   * *Kalender Deadline*: Verifikasi akses kalender dan pemuatan tugas sesuai akun yang login.
    * *Soft Deletes & Trash Recovery*: Menguji mekanisme soft-delete, halaman tong sampah, pemulihan (*restore*), hapus permanen (*force delete*), dan pengosongan tong sampah massal (*empty trash*).
 2. **[`SubtaskTest.php`](file:///c:/laragon/www/task-tracker/tests/Feature/SubtaskTest.php)**:
-   * Verifikasi API index subtask dan proteksi akses tugas pengguna lain.
+   * Verifikasi API index subtask dan pemeriksaan kepemilikan akun pada tugas induk.
    * Pengujian validasi penambahan subtask baru.
    * Pengujian toggle status centang (selesai/belum selesai).
    * Pengujian penghapusan subtask.
@@ -360,8 +365,11 @@ Laravel akan otomatis mengeksekusi pengingat Telegram setiap hari pada pukul **0
 
 ## 9. Rencana Pengembangan Selanjutnya (Roadmap)
 
+### Arah Produk
+* Satu pengelola memakai aplikasi pada satu komputer kantor. Pendaftaran akun publik dan dukungan banyak pengelola bukan kebutuhan.
+* Catatan implementasi: pendaftaran akun ditutup setelah akun pengelola dibuat, dan seluruh tugas diproses untuk satu pengelola.
+
 ### Fitur yang Telah Selesai (Completed)
-* [x] **Multi-User Workspace & Data Isolation**: Setiap pengguna mengelola tugas pribadinya secara terisolasi dan aman.
 * [x] **Papan Kanban Interaktif**: Alur kerja visual drag-and-drop untuk memperbarui status pengerjaan secara real-time.
 * [x] **Manajemen Subtasks & Checklist**: Pemecahan tugas menjadi subtugas terukur dengan progres persentase otomatis.
 * [x] **Kalender Deadline Visual**: Penjadwalan bulanan interaktif untuk memantau tugas yang jatuh tempo.
@@ -371,6 +379,5 @@ Laravel akan otomatis mengeksekusi pengingat Telegram setiap hari pada pukul **0
 
 ### Rencana Selanjutnya (Future Iterations)
 * [ ] **Ekspor Laporan (PDF & Excel/CSV)**: Fasilitas unduh rekapitulasi tugas dan performa klien dalam format PDF dan spreadsheet.
-* [ ] **Kolaborasi Tim (Team Task Sharing)**: Kemampuan membagikan atau menugaskan tugas ke anggota tim lain dengan hak akses *read-only* atau *editor*.
 * [ ] **Activity Log / Riwayat Perubahan**: Pencatatan histori perubahan status, deadline, dan aktivitas subtask.
 * [ ] **Integrasi Notifikasi WhatsApp Bot**: Saluran alternatif pengiriman pengingat via WhatsApp Gateway.

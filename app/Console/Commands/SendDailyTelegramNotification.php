@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
  * Command: tasks:notify-telegram
  *
  * Mengirimkan laporan harian tugas (overdue, H-3 deadline, dan belum dikerjakan)
- * ke Telegram Superadmin secara terjadwal atau saat dipanggil manual.
+ * ke Telegram Pengelola secara terjadwal atau saat dipanggil manual.
  */
 class SendDailyTelegramNotification extends Command
 {
